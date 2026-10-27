@@ -40,7 +40,27 @@ app.get('/producto/limpiador-facial-en-gel-hydro-boost-neutrogena-150-ml', (req,
 
 app.use(express.json())
 
-app.post('/productos', (req, res) => {
+// MIDDLEWARE 
+// Permite interceptar la petición antes de que llegue a la ruta final.
+/*
+    Aplicación práctica: para registrar un producto en el sistema de Supermaxi,
+    el servidor verifica que la petición incluya un token de empleado válido
+    en los encabezados (headers). Si no lo tiene, bloquea el registro.
+*/
+const verificarEmpleado = (req, res, next) => {
+    const token = req.headers['authorization'];
+
+    if (token === 'TokenSeguro123') {
+        next(); 
+    } else {
+        res.status(403).json({
+            error: 'Acceso denegado',
+            mensaje: 'Se requiere un token de empleado válido para realizar esta acción.'
+        });
+    }
+};
+
+app.post('/productos', verificarEmpleado, (req, res) => {
 
     res.json({
         mensaje: 'Producto recibido correctamente',
